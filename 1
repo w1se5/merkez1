@@ -1,0 +1,235 @@
+<?php
+/**
+ * setup.php - InfinityFree Uyğun Setup
+ */
+error_reporting(0);
+ini_set('display_errors', 0);
+
+function saveJSON($file, $data) {
+    $dir = dirname($file);
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
+    $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    $result = @file_put_contents($file, $json);
+    if ($result !== false) {
+        @chmod($file, 0644);
+    }
+    return $result !== false;
+}
+
+echo "<!DOCTYPE html>
+<html lang='az'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Setup - Düşüncə Mərkəzi</title>
+    <script src='https://cdn.tailwindcss.com'></script>
+</head>
+<body class='bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 min-h-screen text-white p-6'>
+<div class='max-w-4xl mx-auto'>
+<div class='bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-8 mb-6'>
+<h1 class='text-3xl font-bold mb-4'>🌙 Düşüncə Mərkəzi - Quraşdırma</h1>
+<p class='mb-4'>Sistem qurulur...</p>
+<div class='space-y-2'>";
+
+// 1. Create directories
+$directories = [
+    'data',
+    'data/users',
+    'data/posts',
+    'data/tickets',
+    'data/events',
+    'data/polls',
+    'data/archive',
+    'data/settings',
+    'data/logs',
+    'uploads',
+    'uploads/images',
+    'uploads/audio',
+    'uploads/documents'
+];
+
+foreach ($directories as $dir) {
+    $path = __DIR__ . '/' . $dir;
+    if (!is_dir($path)) {
+        if (@mkdir($path, 0755, true)) {
+            echo "<p class='text-green-300'>✓ Qovluq yaradıldı: {$dir}</p>";
+        } else {
+            echo "<p class='text-red-300'>✗ Xəta: {$dir}</p>";
+        }
+    } else {
+        echo "<p class='text-blue-300'>• Mövcuddur: {$dir}</p>";
+    }
+}
+
+// 2. Create Admin
+$admin = [
+    'id' => '10000',
+    'key' => 'ADMIN2024',
+    'name' => 'Admin',
+    'phone' => '+994501234567',
+    'group' => 'Administrator',
+    'symbol' => '👑',
+    'theme' => 'purple',
+    'role' => 'admin',
+    'permissions' => [],
+    'tickets' => [],
+    'created' => time()
+];
+
+if (saveJSON(__DIR__ . '/data/users/10000.json', $admin)) {
+    echo "<p class='text-green-300 font-bold'>✓ Admin yaradıldı: ID=<b>10000</b>, KEY=<b>ADMIN2024</b></p>";
+} else {
+    echo "<p class='text-red-300'>✗ Admin yaradıla bilmədi</p>";
+}
+
+// 3. Create Sample Users
+$sampleUsers = [
+    ['name' => 'Aysel Məmmədova', 'phone' => '+994501111111', 'group' => 'Tələbə', 'id' => '12345', 'key' => 'ABC123XY', 'symbol' => '🌙'],
+    ['name' => 'İlkin Əliyev', 'phone' => '+994501111112', 'group' => 'Tələbə', 'id' => '12346', 'key' => 'DEF456YZ', 'symbol' => '⭐'],
+    ['name' => 'Nigar Həsənova', 'phone' => '+994501111113', 'group' => 'Müəllim', 'id' => '12347', 'key' => 'GHI789AB', 'symbol' => '🔮'],
+];
+
+foreach ($sampleUsers as $userData) {
+    $user = [
+        'id' => $userData['id'],
+        'key' => $userData['key'],
+        'name' => $userData['name'],
+        'phone' => $userData['phone'],
+        'group' => $userData['group'],
+        'symbol' => $userData['symbol'],
+        'theme' => 'purple',
+        'role' => 'user',
+        'permissions' => [],
+        'tickets' => [],
+        'created' => time()
+    ];
+    
+    if (saveJSON(__DIR__ . '/data/users/' . $userData['id'] . '.json', $user)) {
+        echo "<p class='text-green-300'>✓ İstifadəçi: {$userData['name']} - ID={$userData['id']}, KEY={$userData['key']}</p>";
+    }
+}
+
+// 4. Create Event
+$event = [
+    'id' => 'event1',
+    'title' => 'İlk Görüş - Düşüncə Mərkəzi',
+    'description' => 'Düşüncə Mərkəzinin açılış tədbiri. Birgə fikir mübadiləsi və tanışlıq.',
+    'date' => time() + (7 * 24 * 3600),
+    'location' => 'Bakı, Nizami küçəsi',
+    'capacity' => 192,
+    'created' => time()
+];
+
+if (saveJSON(__DIR__ . '/data/events/event1.json', $event)) {
+    echo "<p class='text-green-300'>✓ Tədbir yaradıldı: {$event['title']}</p>";
+}
+
+// 5. Create Sample Posts
+$posts = [
+    [
+        'title' => 'Azad Düşüncənin Əhəmiyyəti',
+        'text' => "Azad düşüncə insanın ən fundamental hüququdur. Hər kəs öz fikirlərini sərbəst ifadə etməlidir. Cəmiyyət yalnız fərqli fikirlərin toqquşması ilə inkişaf edir.\n\nBiz Düşüncə Mərkəzində bu prinsipi əsas götürürük.",
+        'topic' => 'philosophy',
+        'author' => '12345'
+    ],
+    [
+        'title' => 'Multikulturalizm və Birgəyaşayış',
+        'text' => "Fərqli mədəniyyətlərin bir arada yaşaması mümkündür və lazımdır. Hər millətin öz dəyərləri var və bu dəyərlər qarşılıqlı hörmətlə mövcud ola bilər.",
+        'topic' => 'multiculturalism',
+        'author' => '12346'
+    ]
+];
+
+foreach ($posts as $i => $postData) {
+    $postId = 'POST100' . ($i + 1);
+    $userFile = __DIR__ . '/data/users/' . $postData['author'] . '.json';
+    
+    if (file_exists($userFile)) {
+        $user = json_decode(file_get_contents($userFile), true);
+        
+        $post = [
+            'id' => $postId,
+            'author' => $postData['author'],
+            'author_name' => $user['name'],
+            'author_symbol' => $user['symbol'],
+            'title' => $postData['title'],
+            'text' => $postData['text'],
+            'topic' => $postData['topic'],
+            'files' => [],
+            'likes' => [],
+            'dislikes' => [],
+            'comments' => [],
+            'pinned' => false,
+            'approved' => true,
+            'created' => time() - (3600 * $i)
+        ];
+        
+        if (saveJSON(__DIR__ . '/data/posts/' . $postId . '.json', $post)) {
+            echo "<p class='text-green-300'>✓ Məqalə: {$postData['title']}</p>";
+        }
+    }
+}
+
+// 6. Create Poll
+$poll = [
+    'id' => 'POLL1001',
+    'author' => '10000',
+    'author_name' => 'Admin',
+    'title' => 'Sizə görə ən vacib dəyər hansıdır?',
+    'options' => ['Azadlıq', 'Hörmət', 'Bilik', 'Ədalət'],
+    'votes' => [],
+    'created' => time()
+];
+
+if (saveJSON(__DIR__ . '/data/polls/POLL1001.json', $poll)) {
+    echo "<p class='text-green-300'>✓ Anket yaradıldı</p>";
+}
+
+// 7. Create Config
+$config = [
+    'site_name' => 'Düşüncə Mərkəzi',
+    'site_url' => 'https://' . $_SERVER['HTTP_HOST'],
+    'max_tickets_per_event' => 192,
+    'rows' => 16,
+    'seats_per_row' => 12,
+    'require_approval' => true,
+    'allow_registration' => false
+];
+
+if (saveJSON(__DIR__ . '/data/settings/config.json', $config)) {
+    echo "<p class='text-green-300'>✓ Config yaradıldı</p>";
+}
+
+// 8. Create .htaccess for data protection
+$htaccessContent = "<Files *.json>\n    Order Allow,Deny\n    Deny from all\n</Files>";
+if (@file_put_contents(__DIR__ . '/data/.htaccess', $htaccessContent)) {
+    echo "<p class='text-green-300'>✓ Data qorunması aktiv</p>";
+}
+
+echo "</div></div>";
+
+echo "<div class='bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-8 mb-6'>
+<h2 class='text-2xl font-bold mb-4'>✅ Setup Tamamlandı!</h2>
+<div class='space-y-2'>
+<p><b>Giriş Məlumatları:</b></p>
+<ul class='list-disc list-inside space-y-1 ml-4'>
+<li>Admin: ID=<b class='text-yellow-300'>10000</b>, KEY=<b class='text-yellow-300'>ADMIN2024</b></li>
+<li>İstifadəçi 1: ID=<b class='text-green-300'>12345</b>, KEY=<b class='text-green-300'>ABC123XY</b></li>
+<li>İstifadəçi 2: ID=<b class='text-green-300'>12346</b>, KEY=<b class='text-green-300'>DEF456YZ</b></li>
+<li>İstifadəçi 3: ID=<b class='text-green-300'>12347</b>, KEY=<b class='text-green-300'>GHI789AB</b></li>
+</ul>
+</div>
+</div>";
+
+echo "<div class='text-center space-y-4'>
+<a href='index.php' class='inline-block bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-8 py-4 rounded-lg font-bold text-lg transition'>
+Ana Səhifəyə Get →
+</a>
+<p class='text-red-300 font-bold'>⚠️ İNDİ BU FAYLIN ADINI DƏYİŞİN!</p>
+<p class='text-sm text-purple-300'>Təhlükəsizlik üçün setup.php faylını setup_old.php kimi yenidən adlandırın</p>
+</div>";
+
+echo "</div></body></html>";
+?>

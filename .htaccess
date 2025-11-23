@@ -1,0 +1,24 @@
+# Rewrite engine'i aktif et
+RewriteEngine On
+
+# HTTPS zorunlu yönlendirme (SSL varsa)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Ana sayfa dosyası olarak index.php veya index.html aç
+DirectoryIndex index.php index.html
+
+# 404 ve 403 hata sayfaları
+ErrorDocument 404 /error404.html
+ErrorDocument 403 /error403.html
+
+
+
+# .php uzantısını gizlətmək üçün
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# URL sonundakı / işarəsini idarə etmək üçün
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)/$ $1 [L,R=301]
